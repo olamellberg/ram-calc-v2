@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>RAM Kalkylator med Prognos</title>
+    <!-- Responsiv design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Inbäddad CSS -->
+    <style>
+        /* Grundläggande stilar */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        h1, h2 {
+            color: #005a9c;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .intro {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            text-align: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        header, main, footer {
+            max-width: 80%;
+            margin: 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .instructions {
+            background-color: #f0f8ff;
+            border-left: 5px solid #005a9c;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .instructions h2 {
+            margin-top: 0;
+        }
+
+        .instructions ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        /* Formulärstilar */
+        form {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        fieldset {
+            border: none;
+            margin-bottom: 15px;
+            padding: 0;
+        }
+
+        legend {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #005a9c;
+            margin-bottom: 10px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .input-container label {
+            flex: 1 1 200px;
+            margin-bottom: 10px;
+        }
+
+        .input-container label input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1 1 auto;
+            max-width: 200px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #005a9c;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: #004080;
+        }
+
+        .reset-button {
+            background-color: #e60000;
+        }
+
+        .reset-button:hover {
+            background-color: #cc0000;
+        }
+
+        /* Tabellstilar */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* För smidigare scroll på iOS */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 4px;
+            text-align: center;
+            word-wrap: break-word;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #005a9c;
+            color: #ffffff;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        /* Anpassade kolumnbredder */
+        table th:first-child, table td:first-child {
+            width: 15%; /* Minskad bredd för Parameter-kolumnen */
+        }
+
+        table th, table td {
+            /* De återstående 85% delas mellan 12 månader + 1 summa kolumn = 13 kolumner */
+            width: calc(85% / 13);
+        }
+
+        /* Anpassa input-fältens bredd inom tabellceller */
+        table td input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* Fokus och tillgänglighet */
+        input:focus, button:focus {
+            outline: 3px solid #005a9c;
+        }
+
+        .warning-box, .info-box {
+            border-left: 5px solid;
+            padding: 15px;
+            margin-top: 20px;
+            box-sizing: border-box;
+        }
+
+        .warning-box {
+            background-color: #fff4e5;
+            border-color: #ffae42;
+        }
+
+        .warning-box h2 {
+            color: #c47f00;
+        }
+
+        .info-box {
+            background-color: #e6f7ff;
+            border-color: #91d5ff;
+        }
+
+        .info-box h2 {
+            color: #005a9c;
+        }
+
+        /* Grafer */
+        .chart-container {
+            margin: 20px 0;
+            box-sizing: border-box;
+        }
+
+        /* Rödmarkering av bruttolön */
+        .negative-balance {
+            background-color: #f8d7da !important;
+        }
+
+        .updated-salary {
+            background-color: #ffcccb !important;
+        }
+
+        /* Ny stil för beräknade rader */
+        .calculated-row td {
+            background-color: #eaf2f8;
+            font-weight: bold;
+        }
+
+        /* Stil för summeringskolumnen */
+        table th:last-child, table td:last-child {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* Responsiv design för mobila enheter */
+        @media (max-width: 800px) {
+            .input-container {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group button {
+                max-width: 100%;
+            }
+
+            /* Tillåt horisontell scroll för tabellen */
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            table {
+                table-layout: auto; /* Tillåt kolumnerna att justera sin bredd efter innehåll */
+            }
+
+            th, td {
+                white-space: nowrap; /* Förhindra radbrytning i cellerna */
+                font-size: 12px; /* Minska textstorleken för bättre läsbarhet */
+            }
+
+            table td input {
+                padding: 8px; /* Öka padding för bättre användbarhet på touch-enheter */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>RAM Kalkylator med Prognos</h1>
+        <p class="intro">Välkommen till RAM Kalkylatorn! Här kan du ange dina ekonomiska parametrar för de kommande 12 månaderna och få en prognos över dina kostnader och ditt ackumulerade RAM-saldo.</p>
+    </header>
+
+    <main>
+        <section class="instructions">
+            <h2>Användarinstruktioner</h2>
+            <ul>
+                <li><strong>Steg 1:</strong> Ange ditt ingående RAM-saldo i fältet nedan. Detta är saldot från din senaste RAM-rapport.</li>
+                <li><strong>Steg 2:</strong> Tabellen visar de kommande 12 månaderna med start från innevarande månad. Fyll i dina ekonomiska parametrar för varje månad.</li>
+                <li><strong>Steg 3:</strong> Ange dina genomsnittliga procentsatser för <strong>sjukfrånvaro</strong> och <strong>VAB</strong> per månad i fälten under tabellen.</li>
+                <li><strong>Steg 4:</strong> Klicka på "<strong>Beräkna</strong>" för att generera en prognos över dina totala kostnader och ditt ackumulerade RAM-saldo för de kommande 12 månaderna.</li>
+                <li><strong>Steg 5:</strong> Om någon av dina bruttolöner överstiger den maximala rekommenderade bruttolönen, visas en varning med möjlighet att justera dem.</li>
+                <li><strong>Steg 6:</strong> Klicka på "<strong>Nollställ</strong>" för att återställa kalkylen till ursprungsläget.</li>
+                <li><strong>Notera:</strong> Alla belopp anges i SEK. Om du har frågor eller behöver hjälp, vänligen kontakta ekonomiavdelningen.</li>
+            </ul>
+        </section>
+
+        <form id="ramForm">
+            <!-- Ingående RAM-saldo -->
+            <fieldset>
+                <legend>Grundläggande Information</legend>
+                <div class="input-container">
+                    <label for="startingRAM">
+                        Ingående RAM-saldo (SEK):
+                        <input type="number" id="startingRAM" name="startingRAM" value="0">
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Ekonomiska Parametrar per Månad</legend>
+                <div class="table-responsive">
+                    <table aria-label="Ekonomiska parametrar">
+                        <thead>
+                            <tr>
+                                <th scope="col">Parameter</th>
+                                <!-- Månader fylls i dynamiskt -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rader fylls i dynamiskt -->
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Övriga Inställningar</legend>
+                <div class="input-container">
+                    <label for="vacationDays">
+                        Semesterdagar per år:
+                        <input type="number" id="vacationDays" name="vacationDays" value="25">
+                    </label>
+                    <label for="sickLeavePercent">
+                        Genomsnittlig sjukfrånvaro per månad (%):
+                        <input type="number" id="sickLeavePercent" name="sickLeavePercent" value="0">
+                    </label>
+                    <label for="vabPercent">
+                        Genomsnittlig VAB per månad (%):
+                        <input type="number" id="vabPercent" name="vabPercent" value="0">
+                    </label>
+                </div>
+            </fieldset>
+
+            <div class="button-group">
+                <button type="button" onclick="calculateRAM()">Beräkna</button>
+                <button type="button" class="reset-button" onclick="resetCalculator()">Nollställ</button>
+            </div>
+        </form>
+
+        <section class="result" id="result" aria-live="polite" style="display: none;">
+            <h2>Prognos för kommande 12 månader</h2>
+            <div class="charts">
+                <div class="chart-container">
+                    <canvas id="expensesChart" role="img" aria-label="Graf över totala kostnader per månad"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ramBalanceChart" role="img" aria-label="Graf över ackumulerat RAM-saldo per månad"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Maximal Bruttolön per Månad -->
+        <section class="info-box" id="maxGrossSalaryInfo" aria-live="polite" style="display: none;">
+            <h2>Maximal Bruttolön per Månad</h2>
+            <p>Baserat på dina angivna parametrar är den maximala bruttolönen för varje månad följande:</p>
+            <div class="table-responsive">
+                <table id="maxGrossSalaryTable" aria-label="Maximal bruttolön per månad">
+                    <thead>
+                        <tr>
+                            <th scope="col">Månad</th>
+                            <th scope="col">Maximal Bruttolön (SEK)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Innehåll fylls i via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p>Den lägsta maximala bruttolönen under året är: <strong id="minMaxGrossSalary"></strong> SEK.</p>
+        </section>
+
+        <!-- Varningsmeddelande -->
+        <section class="warning-box" id="warningMessage" aria-live="assertive" style="display: none;">
+            <h2>Varning</h2>
+            <p id="warningText"></p>
+            <button type="button" onclick="applyRecommendedSalaries()">Använd rekommenderade bruttolöner</button>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2024 RAM Kalkylator</p>
+    </footer>
+
+    <!-- Inkludera Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+
+    <!-- Inbäddad JavaScript -->
+    <script>
+        // Din befintliga JavaScript-kod
+        // ...
+        // Inkludera all JavaScript-kod här
+    </script>
+ <script>
+        // Deklarera variabler i global scope
+        var expensesChart = null;
+        var ramBalanceChart = null;
+        var recommendedSalaries = [];
+        var months = [];
+        var defaultValues = {};
+
+        // Dynamiskt generera månaderna och fyll i tabellen
+        document.addEventListener('DOMContentLoaded', function() {
+            generateMonths();
+            generateTable();
+            assignTabIndexes();
+            saveDefaultValues();
+        });
+
+        function generateMonths() {
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
+            const today = new Date();
+            let currentMonth = today.getMonth(); // 0-indexerad
+            for (let i = 0; i < 12; i++) {
+                months.push(monthNames[currentMonth]);
+                currentMonth = (currentMonth + 1) % 12;
+            }
+
+            // Lägg till månadsrubriker till tabellen
+            const tableHead = document.querySelector('table thead tr');
+            months.forEach(month => {
+                const th = document.createElement('th');
+                th.textContent = month;
+                tableHead.appendChild(th);
+            });
+
+            // Lägg till "Summa" kolumn
+            const thSum = document.createElement('th');
+            thSum.textContent = 'Summa';
+            tableHead.appendChild(thSum);
+        }
+
+        function generateTable() {
+            const parameters = [
+                { name: 'Ersättning till RAM (SEK)', className: 'grossRevenue' },
+                { name: 'Bruttolön (SEK)', className: 'grossSalary' },
+                { name: 'Pensionssparande (SEK)', className: 'pensionSavings' },
+                { name: 'Sjukförsäkringspremie (SEK)', className: 'sicknessInsurance' },
+                { name: 'Sjukvårdsförsäkringspremie (SEK)', className: 'healthcareInsurance' },
+                { name: 'Personalbil/Cykelkostnader (SEK)', className: 'vehicleCosts' },
+                { name: 'Friskvårdsbidrag (SEK per månad)', className: 'wellnessAllowance' },
+                { name: 'Mobiltelefonkostnader (SEK)', className: 'mobileCosts' },
+                { name: 'Litteraturkostnader (SEK)', className: 'literatureCosts' },
+                { name: 'Datorutrustningskostnader (SEK)', className: 'computerCosts' },
+                { name: 'Utbildningskostnader (SEK)', className: 'educationCosts' },
+                { name: 'Övriga kostnader (SEK)', className: 'otherCosts' },
+                { name: 'Spara till buffert (SEK)', className: 'bufferSavings' }
+            ];
+
+            const calculatedParameters = [
+                { name: 'Arbetsgivaravgifter (31,42%)', className: 'employerFees' },
+                { name: 'Särskild löneskatt (24,26%)', className: 'specialSalaryTax' }
+            ];
+
+            const tableBody = document.querySelector('table tbody');
+
+            // Generera rader för varje parameter
+            parameters.forEach(param => {
+                const tr = document.createElement('tr');
+                const tdName = document.createElement('td');
+                tdName.textContent = param.name;
+                tr.appendChild(tdName);
+
+                for (let i = 0; i < 12; i++) {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.name = param.className;
+                    input.className = param.className;
+                    if (i === 0) {
+                        input.addEventListener('input', function() { fillRow(this); });
+                    }
+                    td.appendChild(input);
+                    tr.appendChild(td);
+                }
+
+                // Lägg till summa cell
+                const tdSum = document.createElement('td');
+                const spanSum = document.createElement('span');
+                spanSum.className = `rowSum ${param.className}Sum`;
+                spanSum.textContent = '0';
+                tdSum.appendChild(spanSum);
+                tr.appendChild(tdSum);
+
+                tableBody.appendChild(tr);
+            });
+
+            // Generera rader för beräknade parametrar
+            calculatedParameters.forEach(param => {
+                const tr = document.createElement('tr');
+                tr.className = 'calculated-row';
+                const tdName = document.createElement('td');
+                tdName.textContent = param.name;
+                tr.appendChild(tdName);
+
+                for (let i = 0; i < 12; i++) {
+                    const td = document.createElement('td');
+                    const span = document.createElement('span');
+                    span.className = param.className;
+                    span.textContent = '0';
+                    td.appendChild(span);
+                    tr.appendChild(td);
+                }
+
+                // Lägg till summa cell
+                const tdSum = document.createElement('td');
+                const spanSum = document.createElement('span');
+                spanSum.className = `rowSum ${param.className}Sum`;
+                spanSum.textContent = '0';
+                tdSum.appendChild(spanSum);
+                tr.appendChild(tdSum);
+
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function fillRow(input) {
+            const rowClass = input.className;
+            const inputs = document.querySelectorAll('.' + rowClass);
+            const value = input.value;
+            inputs.forEach((elem, index) => {
+                if (index > 0) {
+                    elem.value = value;
+                }
+            });
+        }
+
+        // Resten av JavaScript-koden för beräkningar och funktionalitet
+	function calculateRAM() {
+            const grossRevenueInputs = document.querySelectorAll('.grossRevenue');
+            const grossSalaryInputs = document.querySelectorAll('.grossSalary');
+            const pensionSavingsInputs = document.querySelectorAll('.pensionSavings');
+            const sicknessInsuranceInputs = document.querySelectorAll('.sicknessInsurance');
+            const healthcareInsuranceInputs = document.querySelectorAll('.healthcareInsurance');
+            const vehicleCostsInputs = document.querySelectorAll('.vehicleCosts');
+            const wellnessAllowanceInputs = document.querySelectorAll('.wellnessAllowance');
+            const mobileCostsInputs = document.querySelectorAll('.mobileCosts');
+            const literatureCostsInputs = document.querySelectorAll('.literatureCosts');
+            const computerCostsInputs = document.querySelectorAll('.computerCosts');
+            const educationCostsInputs = document.querySelectorAll('.educationCosts');
+            const otherCostsInputs = document.querySelectorAll('.otherCosts');
+            const bufferSavingsInputs = document.querySelectorAll('.bufferSavings');
+
+            const employerFeesSpans = document.querySelectorAll('.employerFees');
+            const specialSalaryTaxSpans = document.querySelectorAll('.specialSalaryTax');
+
+            const startingRAM = parseFloat(document.getElementById('startingRAM').value) || 0;
+            const vacationDays = parseFloat(document.getElementById('vacationDays').value);
+            const sickLeavePercent = parseFloat(document.getElementById('sickLeavePercent').value) / 100;
+            const vabPercent = parseFloat(document.getElementById('vabPercent').value) / 100;
+
+            const totalExpensesArray = [];
+            const ramBalanceArray = [];
+            const accumulatedRAMArray = [];
+            let accumulatedRAM = startingRAM;
+            let negativeBalanceMonths = [];
+            recommendedSalaries = [];
+            let overMaxSalaryMonths = [];
+
+            // Rensa tidigare varningar
+            document.getElementById('warningMessage').style.display = 'none';
+            grossSalaryInputs.forEach(input => {
+                input.classList.remove('negative-balance');
+                input.classList.remove('updated-salary');
+            });
+
+            for (let i = 0; i < 12; i++) {
+                // Hämta värden per månad
+                const grossRevenue = parseFloat(grossRevenueInputs[i].value) || 0;
+                let grossSalary = parseFloat(grossSalaryInputs[i].value) || 0;
+                const pensionSavings = parseFloat(pensionSavingsInputs[i].value) || 0;
+                const sicknessInsurance = parseFloat(sicknessInsuranceInputs[i].value) || 0;
+                const healthcareInsurance = parseFloat(healthcareInsuranceInputs[i].value) || 0;
+                const vehicleCosts = parseFloat(vehicleCostsInputs[i].value) || 0;
+                const wellnessAllowance = parseFloat(wellnessAllowanceInputs[i].value) || 0;
+                const mobileCosts = parseFloat(mobileCostsInputs[i].value) || 0;
+                const literatureCosts = parseFloat(literatureCostsInputs[i].value) || 0;
+                const computerCosts = parseFloat(computerCostsInputs[i].value) || 0;
+                const educationCosts = parseFloat(educationCostsInputs[i].value) || 0;
+                const otherCosts = parseFloat(otherCostsInputs[i].value) || 0;
+                const bufferSavings = parseFloat(bufferSavingsInputs[i].value) || 0;
+
+                // Beräkningar
+                const employerFees = grossSalary * 0.3142; // Arbetsgivaravgifter
+                const specialSalaryTax = (pensionSavings + sicknessInsurance) * 0.2426; // Särskild löneskatt
+                const taxableBenefit = healthcareInsurance * 0.60; // Förmånsbeskattning av sjukvårdsförsäkring
+                const workingDaysPerYear = 260;
+                const workingDaysPerMonth = workingDaysPerYear / 12;
+                const vacationDaysPerMonth = vacationDays / 12;
+                const vacationPay = grossSalary * (vacationDaysPerMonth / workingDaysPerMonth); // Semesterlön
+
+                // Uppdatera beräknade värden i tabellen
+                employerFeesSpans[i].innerText = employerFees.toFixed(2);
+                specialSalaryTaxSpans[i].innerText = specialSalaryTax.toFixed(2);
+
+                // Justera ersättning för sjukfrånvaro och VAB
+                const sickLeaveAdjustment = grossRevenue * sickLeavePercent;
+                const vabAdjustment = grossRevenue * vabPercent * 0.89; // 89% avdrag vid VAB
+                const adjustedGrossRevenue = grossRevenue - sickLeaveAdjustment - vabAdjustment;
+
+                // Total kostnad (exklusive buffertsparande)
+                const totalExpenses = grossSalary
+                    + employerFees
+                    + pensionSavings
+                    + sicknessInsurance
+                    + specialSalaryTax
+                    + healthcareInsurance
+                    + vacationPay
+                    + vehicleCosts
+                    + wellnessAllowance
+                    + mobileCosts
+                    + literatureCosts
+                    + computerCosts
+                    + educationCosts
+                    + otherCosts;
+
+                // Nettosaldo på RAM
+                const netRAM = adjustedGrossRevenue - totalExpenses;
+
+                // Uppdatera ackumulerat RAM-saldo
+                accumulatedRAM += netRAM;
+
+                // Lägg till buffertsparande från föregående månad
+                if (i > 0) {
+                    accumulatedRAM += parseFloat(bufferSavingsInputs[i - 1].value) || 0;
+                } else {
+                    accumulatedRAM += 0; // Första månaden har ingen föregående buffert
+                }
+
+                accumulatedRAMArray.push(accumulatedRAM.toFixed(2));
+
+                // Hantera negativt RAM-saldo
+                if (accumulatedRAM < 0) {
+                    negativeBalanceMonths.push(i);
+                }
+
+                // Spara värden för graferna
+                totalExpensesArray.push(Math.floor(totalExpenses / 100) * 100); // Avrunda nedåt till närmaste 100-tal
+
+                // Beräkna maximal bruttolön för månaden
+                const fixedCosts = pensionSavings
+                    + sicknessInsurance
+                    + specialSalaryTax
+                    + healthcareInsurance
+                    + vehicleCosts
+                    + wellnessAllowance
+                    + mobileCosts
+                    + literatureCosts
+                    + computerCosts
+                    + educationCosts
+                    + otherCosts;
+
+                const employerFeesRate = 0.3142;
+                const vacationPayRate = vacationDaysPerMonth / workingDaysPerMonth;
+
+                let maxGrossSalary = (adjustedGrossRevenue - fixedCosts) / (1 + employerFeesRate + vacationPayRate);
+
+                // Justera för buffertsparande
+                maxGrossSalary -= bufferSavings / (1 + employerFeesRate + vacationPayRate);
+
+                // Hantera negativa värden
+                maxGrossSalary = Math.max(0, maxGrossSalary);
+
+                // Avrunda nedåt till närmaste jämna 100-tal
+                maxGrossSalary = Math.floor(maxGrossSalary / 100) * 100;
+
+                recommendedSalaries.push(maxGrossSalary);
+
+                // Markera om bruttolönen är högre än max tillåtet
+                if (grossSalary > maxGrossSalary) {
+                    grossSalaryInputs[i].classList.add('negative-balance');
+                    overMaxSalaryMonths.push(i);
+                }
+            }
+
+            // Visa varningsmeddelande om negativt RAM-saldo eller bruttolön över max
+            if (negativeBalanceMonths.length > 0 || overMaxSalaryMonths.length > 0) {
+                document.getElementById('warningMessage').style.display = 'block';
+
+                let warningTexts = [];
+
+                if (negativeBalanceMonths.length > 0) {
+                    const monthNames = negativeBalanceMonths.map(index => months[index]);
+                    warningTexts.push(`Ditt ackumulerade RAM-saldo blir negativt under året (${monthNames.join(', ')}).`);
+                }
+
+                if (overMaxSalaryMonths.length > 0) {
+                    const monthNames = overMaxSalaryMonths.map(index => months[index]);
+                    warningTexts.push(`Din bruttolön överstiger den maximala rekommenderade bruttolönen under månaderna: ${monthNames.join(', ')}.`);
+                }
+
+                document.getElementById('warningText').innerText = warningTexts.join(' ');
+
+            }
+
+            // Visa graferna
+            displayCharts(months, totalExpensesArray, accumulatedRAMArray);
+            document.getElementById('result').style.display = 'block';
+
+            // Visa maximal bruttolön per månad
+            displayMaxGrossSalary(recommendedSalaries, months);
+
+            // Uppdatera summeringskolumnen
+            updateRowSums();
+        }
+
+        function displayCharts(labels, expenses, ramBalance) {
+            // Total kostnadsgraf
+            const ctxExpenses = document.getElementById('expensesChart').getContext('2d');
+            if (expensesChart) {
+                expensesChart.destroy();
+            }
+            expensesChart = new Chart(ctxExpenses, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total kostnad (SEK)',
+                        data: expenses,
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Total Kostnad per Månad'
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }]
+                    }
+                }
+            });
+
+            // Ackumulerat RAM-saldo graf
+            const ctxRAM = document.getElementById('ramBalanceChart').getContext('2d');
+            if (ramBalanceChart) {
+                ramBalanceChart.destroy();
+            }
+            ramBalanceChart = new Chart(ctxRAM, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ackumulerat RAM-saldo (SEK)',
+                        data: ramBalance,
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Ackumulerat RAM-saldo per Månad'
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: false,
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        function displayMaxGrossSalary(recommendedSalaries, months) {
+            const tbody = document.getElementById('maxGrossSalaryTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Rensa tidigare innehåll
+
+            let minMaxGrossSalary = Number.MAX_VALUE;
+
+            recommendedSalaries.forEach((value, index) => {
+                const tr = document.createElement('tr');
+                const tdMonth = document.createElement('td');
+                const tdSalary = document.createElement('td');
+
+                tdMonth.textContent = months[index];
+                tdSalary.textContent = value.toLocaleString();
+
+                tr.appendChild(tdMonth);
+                tr.appendChild(tdSalary);
+                tbody.appendChild(tr);
+
+                // Uppdatera minsta maximala bruttolön
+                const salaryValue = parseFloat(value);
+                if (salaryValue < minMaxGrossSalary) {
+                    minMaxGrossSalary = salaryValue;
+                }
+            });
+
+            // Visa den minsta maximala bruttolönen
+            document.getElementById('minMaxGrossSalary').innerText = minMaxGrossSalary.toLocaleString();
+            document.getElementById('maxGrossSalaryInfo').style.display = 'block';
+        }
+
+        function updateRowSums() {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const spans = row.querySelectorAll('span');
+                let sum = 0;
+                inputs.forEach(input => {
+                    sum += parseFloat(input.value) || 0;
+                });
+                spans.forEach(span => {
+                    if (!span.classList.contains('rowSum')) {
+                        sum += parseFloat(span.innerText) || 0;
+                    }
+                });
+                const sumCell = row.querySelector('.rowSum');
+                if (sumCell) {
+                    sumCell.innerText = sum.toFixed(2);
+                }
+            });
+        }
+
+        function applyRecommendedSalaries() {
+            const grossSalaryInputs = document.querySelectorAll('.grossSalary');
+            grossSalaryInputs.forEach((input, index) => {
+                const oldSalary = parseFloat(input.value) || 0;
+                const recommendedSalary = parseFloat(recommendedSalaries[index]) || 0;
+                if (recommendedSalary < oldSalary) {
+                    input.value = recommendedSalary.toFixed(2);
+                    input.classList.add('updated-salary');
+                }
+            });
+            calculateRAM(); // Uppdatera beräkningarna och graferna
+            document.getElementById('warningMessage').style.display = 'none';
+        }
+
+        function assignTabIndexes() {
+            const table = document.querySelector('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.rows);
+            const numRows = rows.length;
+            const numColumns = months.length; // Antalet månader
+
+            let tabIndex = 1;
+
+            for (let colIndex = 1; colIndex <= numColumns; colIndex++) { // Börja från 1 för att hoppa över parameterkolumnen
+                for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+                    const cell = rows[rowIndex].cells[colIndex];
+                    const input = cell.querySelector('input');
+                    if (input) {
+                        input.tabIndex = tabIndex++;
+                    }
+                }
+            }
+        }
+		        
+
+
+    </script>
+
+</body>
+</html>
